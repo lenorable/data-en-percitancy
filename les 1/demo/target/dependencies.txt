@@ -1,0 +1,2 @@
+digraph "com.example:demo:jar:1.0-SNAPSHOT" { 
+ } 

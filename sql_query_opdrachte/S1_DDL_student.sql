@@ -46,10 +46,19 @@ ALTER TABLE medewerkers ADD geslacht varchar(1) CONSTRAINT m_geslacht_chk CHECK 
 -- en valt direct onder de directeur.
 -- Voeg de nieuwe afdeling en de nieuwe medewerker toe aan de database.
 
---new row for relation "afdelingen" violates check constraint "a_loc_chk"
-COMMIT;
-INSERT INTO afdelingen VALUES (50, 'ONDERZOEK','Zwolle', 1000);
-SELECT * from afdelingen;
+-- new row for relation "afdelingen" violates check constraint "a_loc_chk"
+-- null value in column "gbdatum" of relation "medewerkers" violates not-null constraint
+INSERT INTO afdelingen (anr, naam, locatie) VALUES (50, 'ONDERZOEK','ZWOLLE');
+
+INSERT INTO medewerkers (mnr, naam, voorl, chef, afd, gbdatum, maandsal) VALUES (8000, 'DONK', 'A', 7839, 50, '1988-09-12', 3000);
+
+UPDATE afdelingen SET hoofd = 8000 WHERE anr = 50;
+
+-- SELECT * from afdelingen;
+SELECT * from medewerkers;
+
+-- SELECT * from information_schema.columns WHERE table_name = 'medewerkers' AND is_nullable = 'NO';
+
 
 
 -- S1.3. Verbetering op afdelingentabel
@@ -61,6 +70,25 @@ SELECT * from afdelingen;
 --      de nieuwe sequence.
 --   c) Op enig moment gaat het mis. De betreffende kolommen zijn te klein voor
 --      nummers van 3 cijfers. Los dit probleem op.
+
+CREATE SEQUENCE a_afdeling_seq
+	INCREMENT 10
+	START 60
+	MAXVALUE 990;
+	
+ALTER TABLE afdelingen 
+ALTER COLUMN anr SET DATA TYPE NUMERIC(3), 
+ALTER COLUMN anr SET DEFAULT NEXTVAL('a_afdeling_seq');
+
+ALTER TABLE medewerkers ALTER COLUMN afd TYPE NUMERIC(3);
+
+INSERT INTO afdelingen (naam, locatie, hoofd) VALUES ('KLANTENSERVICE', 'UTRECHT', 7698);
+INSERT INTO afdelingen (naam, locatie, hoofd) VALUES ('ICT', 'LEIDEN', 7782);
+INSERT INTO afdelingen (naam, locatie, hoofd) VALUES ('INKOOP', 'DE MEERN', 7566);
+INSERT INTO afdelingen (naam, locatie, hoofd) VALUES ('MARKTONDERZOEK', 'ZWOLLE', 8000);
+INSERT INTO afdelingen (naam, locatie, hoofd) VALUES ('ADVERTENTIE', 'GRONINGEN', 7839);
+
+SELECT * from afdelingen;
 
 
 -- S1.4. Adressen
@@ -76,6 +104,22 @@ SELECT * from afdelingen;
 --    telefoon      10 cijfers, uniek
 --    med_mnr       FK, verplicht
 
+-- syntax error at or near "UNIQUE"
+CREATE TABLE adressen (
+    postcode CHAR(6) CONSTRAINT a_postcode_chk CHECK (postcode ~ '^[0-9]{4}[A-Z]{2}$') NOT NULL,
+    huisnummer INTEGER NOT NULL,
+    ingangsdatum DATE NOT NULL,
+    einddatum DATE CONSTRAINT a_einddatum_chk CHECK (einddatum > ingangsdatum),
+    telefoon CHAR(10) CONSTRAINT a_telefoon_chk CHECK (telefoon ~ '^[0-9]{10}$') UNIQUE,
+    med_mnr INTEGER NOT NULL,
+    PRIMARY KEY (postcode, huisnummer, ingangsdatum),
+    FOREIGN KEY (med_mnr) REFERENCES medewerkers (mnr)
+);
+
+INSERT INTO adressen (postcode, huisnummer, ingangsdatum, einddatum, telefoon, med_mnr)
+VALUES ('3543DN', 100, '2022-03-12', NULL, '0612345678', 8000);
+
+
 
 -- S1.5. Commissie
 --
@@ -83,11 +127,23 @@ SELECT * from afdelingen;
 -- 'VERKOPER' heeft, anders moet de commissie NULL zijn. Schrijf hiervoor een beperkingsregel. Gebruik onderstaande
 -- 'illegale' INSERTs om je beperkingsregel te controleren.
 
-INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
-VALUES (8001, 'MULLER', 'TJ', 'TRAINER', 7566, '1982-08-18', 2000, 500);
+UPDATE medewerkers SET comm = NULL WHERE NOT functie = 'VERKOPER';
 
-INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
-VALUES (8002, 'JANSEN', 'M', 'VERKOPER', 7698, '1981-07-17', 1000, NULL);
+ALTER TABLE medewerkers
+ADD CONSTRAINT m_comm_chk CHECK (
+    (functie = 'VERKOPER' AND comm IS NOT NULL) OR
+    (NOT functie = 'VERKOPER' AND comm IS NULL)
+);
+
+SELECT * FROM medewerkers;
+
+-- ------------------------------------------------------------------------------ 
+
+-- INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
+-- VALUES (8001, 'MULLER', 'TJ', 'TRAINER', 7566, '1982-08-18', 2000, 500);
+
+-- INSERT INTO medewerkers (mnr, naam, voorl, functie, chef, gbdatum, maandsal, comm)
+-- VALUES (8002, 'JANSEN', 'M', 'VERKOPER', 7698, '1981-07-17', 1000, NULL);
 
 
 

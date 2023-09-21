@@ -85,6 +85,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
         }
 
         statement.close();
+        awns.close();
 
         return r1;
     }
@@ -111,6 +112,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
         }
 
         statement.close();
+        awns.close();
 
         return reizigers;
     }
@@ -135,6 +137,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
         }
 
         statement.close();
+        awns.close();
 
         return reizigers;
     }

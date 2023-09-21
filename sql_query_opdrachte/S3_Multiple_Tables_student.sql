@@ -65,7 +65,7 @@ select medewerkers.naam from medewerkers left join inschrijvingen ON (inschrijvi
 -- S3.6.
 -- Geef de namen van alle medewerkers en hun toelage.
 -- DROP VIEW IF EXISTS s3_6; CREATE OR REPLACE VIEW s3_6 AS                                                     -- [TEST]
-
+SELECT medewerkers.naam, schalen.toelage FROM medewerkers LEFT JOIN schalen ON (medewerkers.maandsal > schalen.ondergrens AND medewerkers.maandsal < schalen.bovengrens);
 
 
 -- -------------------------[ HU TESTRAAMWERK ]--------------------------------

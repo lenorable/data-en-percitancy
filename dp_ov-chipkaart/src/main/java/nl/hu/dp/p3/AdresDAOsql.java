@@ -15,6 +15,10 @@ public class AdresDAOsql implements AdresDAO{
         this.conn = conn;
     }
 
+    public void setReizigerDAO(ReizigerDAO rDao){
+        this.rDao = rDao;
+    }
+
     @Override
     public boolean save(Adres adres) throws SQLException {
         PreparedStatement statement = conn.prepareStatement("INSERT INTO adres VALUES (?,?,?,?,?,?)");
@@ -34,7 +38,7 @@ public class AdresDAOsql implements AdresDAO{
 
     @Override
     public boolean update(Adres adres) throws SQLException {
-        PreparedStatement statement = conn.prepareStatement("UPDATE adres SET postcode = ?, huisnummer = ?, straat = ?, woonplaats = ?, reiziger_id = ? WHERE id = ?");
+        PreparedStatement statement = conn.prepareStatement("UPDATE adres SET postcode = ?, huisnummer = ?, straat = ?, woonplaats = ?, reiziger_id = ? WHERE adres_id = ?");
 
         statement.setString(1, adres.getPostcode());
         statement.setString(2, adres.getHuisnummer());
@@ -51,7 +55,7 @@ public class AdresDAOsql implements AdresDAO{
 
     @Override
     public boolean delete(Adres adres) throws SQLException {
-        PreparedStatement statement = conn.prepareStatement("DELETE FROM reiziger WHERE id = ?");
+        PreparedStatement statement = conn.prepareStatement("DELETE FROM adres WHERE reiziger_id = ?");
 
         statement.setInt(1, adres.getId());
 
@@ -72,6 +76,7 @@ public class AdresDAOsql implements AdresDAO{
         Adres a1 = new Adres();
 
         if (awns.next()) {
+            a1.setReiziger(reiziger);
             a1.setPostcode(awns.getString(2));
             a1.setHuisnummer(awns.getString(3));
             a1.setStraat(awns.getString(4));
@@ -95,6 +100,8 @@ public class AdresDAOsql implements AdresDAO{
 
         while (awns.next()){
             Adres a1 = new Adres();
+            // a1.setReiziger_id(awns.getInt(1));
+            a1.setReiziger(rDao.findById(awns.getInt(1)));
             a1.setPostcode(awns.getString(2));
             a1.setHuisnummer(awns.getString(3));
             a1.setStraat(awns.getString(4));

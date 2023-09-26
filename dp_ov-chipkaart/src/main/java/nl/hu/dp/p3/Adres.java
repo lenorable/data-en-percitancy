@@ -6,7 +6,9 @@ public class Adres {
     private String huisnummer;
     private String straat;
     private String woonplaats;
-    
+
+    private Reiziger reiziger;
+
     public int getId() {
         return id;
     }
@@ -14,8 +16,6 @@ public class Adres {
     public void setId(int id) {
         this.id = id;
     }
-
-    private int reiziger_id;
 
     public String getPostcode() {
         return postcode;
@@ -49,16 +49,22 @@ public class Adres {
         this.woonplaats = woonplaats;
     }
 
+    // voor het ophalen van id? kan anders...
     public int getReiziger_id() {
-        return reiziger_id;
+        return this.reiziger.getId();
     }
 
-    public void setReiziger_id(int reiziger_id) {
-        this.reiziger_id = reiziger_id;
+    // voor de relatie tussen Adres en Reiziger
+    public Reiziger getReiziger() {
+        return reiziger;
+    }
+
+    public void setReiziger(Reiziger reiziger) {
+        this.reiziger = reiziger;
     }
 
     public String toString() {
-        return String.format("Reiziger met id %o woont op postcode %c met huisnummer %c. dit is in de straat %c in %c. dit adres is adres %c", reiziger_id, postcode, huisnummer, straat, woonplaats, id);
+        return String.format("Reiziger (met id %o )woont op postcode %s met huisnummer %s. dit is in de straat %s in %s. dit adres is adres %s", this.getReiziger_id(), postcode, huisnummer, straat, woonplaats, id);
     }
 
 }

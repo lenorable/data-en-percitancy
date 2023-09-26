@@ -9,7 +9,7 @@ public class Reiziger {
     private String achternaam;
     private LocalDate geboortedaum;
 
-    // private 
+    private Adres adres;
 
     public Reiziger(){
         
@@ -69,5 +69,14 @@ public class Reiziger {
 
     public String toString(){
         return "Klant " + getNaam() + " met id: " + id + " , is geboren op: " + geboortedaum.toString();
+    }
+
+    // voor de relatie tussen reiziger en adres
+    public Adres getAdres() {
+        return adres;
+    }
+
+    public void setAdres(Adres adres) {
+        this.adres = adres;
     }
 }

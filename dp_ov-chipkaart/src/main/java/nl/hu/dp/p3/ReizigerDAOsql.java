@@ -11,9 +11,14 @@ import java.util.List;
 
 public class ReizigerDAOsql implements ReizigerDAO {
     private Connection conn;
+    private AdresDAO aDao;
 
     public ReizigerDAOsql(Connection conn) {
         this.conn = conn;
+    }
+
+    public void setAdresDAO(AdresDAO aDao){
+        this.aDao = aDao;
     }
 
     @Override
@@ -30,6 +35,10 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
         statement.executeUpdate();
         statement.close();
+
+        if (this.aDao != null){
+            this.aDao.save(reiziger.getAdres());
+        }
 
         return true;
     }
@@ -51,11 +60,19 @@ public class ReizigerDAOsql implements ReizigerDAO {
         statement.executeUpdate();
         statement.close();
 
+        if (this.aDao != null){
+            this.aDao.update(reiziger.getAdres());
+        }
+
         return true;
     }
 
     @Override
     public boolean delete(Reiziger reiziger) throws SQLException {
+        if (this.aDao != null){
+            this.aDao.delete(reiziger.getAdres());
+        }
+
         PreparedStatement statement = conn.prepareStatement("DELETE FROM reiziger WHERE reiziger_id = ?");
 
         statement.setInt(1, reiziger.getId());
@@ -100,7 +117,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
         ArrayList<Reiziger> reizigers = new ArrayList<Reiziger>();
 
-        while (awns.next()){
+        while (awns.next()) {
             Reiziger r1 = new Reiziger();
             r1.setId(awns.getInt(1));
             r1.setVoorletters(awns.getString(2));
@@ -125,7 +142,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
         ArrayList<Reiziger> reizigers = new ArrayList<Reiziger>();
 
-        while (awns.next()){
+        while (awns.next()) {
             Reiziger r1 = new Reiziger();
             r1.setId(awns.getInt(1));
             r1.setVoorletters(awns.getString(2));

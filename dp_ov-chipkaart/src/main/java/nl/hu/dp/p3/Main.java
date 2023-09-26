@@ -12,7 +12,9 @@ public class Main {
     public static void main(String[] args) throws SQLException{
         getConnection();
 
-        testReizigerDAO(new ReizigerDAOsql(connection));
+        // testReizigerDAO(new ReizigerDAOsql(connection));
+
+        testAdresDAO(new ReizigerDAOsql(connection), new AdresDAOsql(connection));
 
         closeConnection();
     }
@@ -69,6 +71,41 @@ public class Main {
         System.out.println("\ngebruiker met id 1: " + rdao.findById(1));
 
         System.out.println("\nalles lijkt goed te werken :)");
+    }
+
+    private static void testAdresDAO(ReizigerDAO rdao, AdresDAO aDao) throws SQLException {
+        rdao.setAdresDAO(aDao);
+        aDao.setReizigerDAO(rdao);
+
+        List<Reiziger> reizigers = rdao.findAll();
+
+        for (Reiziger reiziger : reizigers) {
+            System.out.println(reiziger + " " + aDao.findByReiziger(reiziger));
+        }
+
+        Adres aNew = new Adres();
+        aNew.setId(6);
+        aNew.setPostcode("1234AB");
+        aNew.setHuisnummer("101");
+        aNew.setStraat("abc straat");
+        aNew.setWoonplaats("Groningen");
+
+        Reiziger rNew = new Reiziger(6, "A", "van den", "Berg", LocalDate.parse("2000-02-07"));
+
+        aNew.setReiziger(rNew);
+        rNew.setAdres(aNew);
+
+        rdao.save(rNew);
+
+        System.out.println(aDao.findByReiziger(rdao.findById(6)));
+
+        aNew.setPostcode("5678CD");
+        rNew.setTussenvoegsel("test");
+        rdao.update(rNew);
+
+        System.out.println(aDao.findByReiziger(rdao.findById(6)));
+
+        rdao.delete(rNew);
     }
 
 }

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface ReizigerDAO {
+    public void setAdresDAO(AdresDAO aDao);
     public boolean save(Reiziger reiziger) throws SQLException;
     public boolean update(Reiziger reiziger) throws SQLException;
     public boolean delete(Reiziger reiziger) throws SQLException;

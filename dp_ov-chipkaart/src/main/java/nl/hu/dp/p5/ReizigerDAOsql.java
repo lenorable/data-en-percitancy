@@ -1,4 +1,4 @@
-package nl.hu.dp.p3;
+package nl.hu.dp.p5;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -7,18 +7,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 public class ReizigerDAOsql implements ReizigerDAO {
     private Connection conn;
     private AdresDAO aDao;
+    private OVChipkaartDAO oDao;
 
     public ReizigerDAOsql(Connection conn) {
         this.conn = conn;
     }
 
-    public void setAdresDAO(AdresDAO aDao){
+    public void setAdresDAO(AdresDAO aDao) {
         this.aDao = aDao;
+    }
+
+    public void setOVChipDAO(OVChipkaartDAO oDao) {
+        this.oDao = oDao;
     }
 
     @Override
@@ -36,8 +40,14 @@ public class ReizigerDAOsql implements ReizigerDAO {
         statement.executeUpdate();
         statement.close();
 
-        if (this.aDao != null){
+        if (this.aDao != null) {
             this.aDao.save(reiziger.getAdres());
+        }
+
+        if (this.oDao != null) {
+            for (OVChipkaart kaart : reiziger.getKaarten()) {
+                this.oDao.save(kaart);
+            }
         }
 
         return true;
@@ -60,8 +70,14 @@ public class ReizigerDAOsql implements ReizigerDAO {
         statement.executeUpdate();
         statement.close();
 
-        if (this.aDao != null){
+        if (this.aDao != null) {
             this.aDao.update(reiziger.getAdres());
+        }
+
+        if (this.oDao != null) {
+            for (OVChipkaart kaart : reiziger.getKaarten()) {
+                this.oDao.update(kaart);
+            }
         }
 
         return true;
@@ -69,8 +85,14 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
     @Override
     public boolean delete(Reiziger reiziger) throws SQLException {
-        if (this.aDao != null){
+        if (this.aDao != null) {
             this.aDao.delete(reiziger.getAdres());
+        }
+
+        if (this.oDao != null) {
+            for (OVChipkaart kaart : reiziger.getKaarten()) {
+                this.oDao.delete(kaart);
+            }
         }
 
         PreparedStatement statement = conn.prepareStatement("DELETE FROM reiziger WHERE reiziger_id = ?");
@@ -101,9 +123,16 @@ public class ReizigerDAOsql implements ReizigerDAO {
             r1.setGeboortedaum(LocalDate.parse(awns.getDate(5).toString()));
         }
 
-        if (this.aDao != null){
+        if (this.aDao != null) {
             Adres reizigerAdres = this.aDao.findByReiziger(r1);
             r1.setAdres(reizigerAdres);
+        }
+
+        if (this.oDao != null) {
+            ArrayList<OVChipkaart> kaarten = oDao.findByReiziger(r1);
+            for (OVChipkaart kaart : kaarten) {
+                r1.addKaart(kaart);
+            }
         }
 
         statement.close();
@@ -113,7 +142,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
     }
 
     @Override
-    public List<Reiziger> findByGbdatum(LocalDate datum) throws SQLException {
+    public ArrayList<Reiziger> findByGbdatum(LocalDate datum) throws SQLException {
         PreparedStatement statement = conn.prepareStatement("SELECT * FROM reiziger WHERE geboortedatum = ?");
 
         statement.setDate(1, Date.valueOf(datum));
@@ -130,9 +159,16 @@ public class ReizigerDAOsql implements ReizigerDAO {
             r1.setAchternaam(awns.getString(4));
             r1.setGeboortedaum(LocalDate.parse(awns.getDate(5).toString()));
 
-            if (this.aDao != null){
+            if (this.aDao != null) {
                 Adres reizigerAdres = this.aDao.findByReiziger(r1);
                 r1.setAdres(reizigerAdres);
+            }
+
+            if (this.oDao != null) {
+                ArrayList<OVChipkaart> kaarten = oDao.findByReiziger(r1);
+                for (OVChipkaart kaart : kaarten) {
+                    r1.addKaart(kaart);
+                }
             }
 
             reizigers.add(r1);
@@ -145,7 +181,7 @@ public class ReizigerDAOsql implements ReizigerDAO {
     }
 
     @Override
-    public List<Reiziger> findAll() throws SQLException {
+    public ArrayList<Reiziger> findAll() throws SQLException {
         PreparedStatement statement = conn.prepareStatement("SELECT * FROM reiziger");
 
         ResultSet awns = statement.executeQuery();
@@ -160,9 +196,16 @@ public class ReizigerDAOsql implements ReizigerDAO {
             r1.setAchternaam(awns.getString(4));
             r1.setGeboortedaum(LocalDate.parse(awns.getDate(5).toString()));
 
-            if (this.aDao != null){
+            if (this.aDao != null) {
                 Adres reizigerAdres = this.aDao.findByReiziger(r1);
                 r1.setAdres(reizigerAdres);
+            }
+
+            if (this.oDao != null) {
+                ArrayList<OVChipkaart> kaarten = oDao.findByReiziger(r1);
+                for (OVChipkaart kaart : kaarten) {
+                    r1.addKaart(kaart);
+                }
             }
 
             reizigers.add(r1);

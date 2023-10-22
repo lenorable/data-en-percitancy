@@ -18,11 +18,11 @@ public class ReizigerDAOsql implements ReizigerDAO {
         this.conn = conn;
     }
 
-    public void setAdresDAO(AdresDAO aDao){
+    public void setAdresDAO(AdresDAO aDao) {
         this.aDao = aDao;
     }
 
-    public void setOVChipDAO(OVChipkaartDAO oDao){
+    public void setOVChipDAO(OVChipkaartDAO oDao) {
         this.oDao = oDao;
     }
 
@@ -41,12 +41,14 @@ public class ReizigerDAOsql implements ReizigerDAO {
         statement.executeUpdate();
         statement.close();
 
-        if (this.aDao != null){
+        if (this.aDao != null) {
             this.aDao.save(reiziger.getAdres());
         }
 
-        if (this.oDao != null){
-            this.oDao.save(reiziger.getKaarten());
+        if (this.oDao != null) {
+            for (OVChipkaart kaart : reiziger.getKaarten()) {
+                this.oDao.save(kaart);
+            }
         }
 
         return true;
@@ -69,12 +71,14 @@ public class ReizigerDAOsql implements ReizigerDAO {
         statement.executeUpdate();
         statement.close();
 
-        if (this.aDao != null){
+        if (this.aDao != null) {
             this.aDao.update(reiziger.getAdres());
         }
 
-        if (this.oDao != null){
-            this.oDao.update(reiziger.getKaarten());
+        if (this.oDao != null) {
+            for (OVChipkaart kaart : reiziger.getKaarten()) {
+                this.oDao.update(kaart);
+            }
         }
 
         return true;
@@ -82,12 +86,14 @@ public class ReizigerDAOsql implements ReizigerDAO {
 
     @Override
     public boolean delete(Reiziger reiziger) throws SQLException {
-        if (this.aDao != null){
+        if (this.aDao != null) {
             this.aDao.delete(reiziger.getAdres());
         }
 
-        if (this.oDao != null){
-            this.oDao.delete(reiziger.getKaarten());
+        if (this.oDao != null) {
+            for (OVChipkaart kaart : reiziger.getKaarten()) {
+                this.oDao.delete(kaart);
+            }
         }
 
         PreparedStatement statement = conn.prepareStatement("DELETE FROM reiziger WHERE reiziger_id = ?");
@@ -118,6 +124,20 @@ public class ReizigerDAOsql implements ReizigerDAO {
             r1.setGeboortedaum(LocalDate.parse(awns.getDate(5).toString()));
         }
 
+        // ik denk dat dit in de loop hier boven moet en dat het uberhaupt nu nog niks
+        // terug geeft? dus ja, check dat en voeg dan het zelfde idee toe aan de p5 :)
+        if (this.aDao != null) {
+            Adres reizigerAdres = this.aDao.findByReiziger(r1);
+            r1.setAdres(reizigerAdres);
+        }
+
+        if (this.oDao != null) {
+            ArrayList<OVChipkaart> kaarten = oDao.findByReiziger(r1);
+            for (OVChipkaart kaart : kaarten) {
+                r1.addKaart(kaart);
+            }
+        }
+
         statement.close();
         awns.close();
 
@@ -141,6 +161,18 @@ public class ReizigerDAOsql implements ReizigerDAO {
             r1.setTussenvoegsel(awns.getString(3));
             r1.setAchternaam(awns.getString(4));
             r1.setGeboortedaum(LocalDate.parse(awns.getDate(5).toString()));
+
+            if (this.aDao != null) {
+                Adres reizigerAdres = this.aDao.findByReiziger(r1);
+                r1.setAdres(reizigerAdres);
+            }
+
+            if (this.oDao != null) {
+                ArrayList<OVChipkaart> kaarten = oDao.findByReiziger(r1);
+                for (OVChipkaart kaart : kaarten) {
+                    r1.addKaart(kaart);
+                }
+            }
 
             reizigers.add(r1);
         }
@@ -166,6 +198,18 @@ public class ReizigerDAOsql implements ReizigerDAO {
             r1.setTussenvoegsel(awns.getString(3));
             r1.setAchternaam(awns.getString(4));
             r1.setGeboortedaum(LocalDate.parse(awns.getDate(5).toString()));
+
+            if (this.aDao != null) {
+                Adres reizigerAdres = this.aDao.findByReiziger(r1);
+                r1.setAdres(reizigerAdres);
+            }
+
+            if (this.oDao != null) {
+                ArrayList<OVChipkaart> kaarten = oDao.findByReiziger(r1);
+                for (OVChipkaart kaart : kaarten) {
+                    r1.addKaart(kaart);
+                }
+            }
 
             reizigers.add(r1);
         }

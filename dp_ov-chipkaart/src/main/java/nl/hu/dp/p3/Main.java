@@ -106,6 +106,10 @@ public class Main {
         System.out.println(aDao.findByReiziger(rdao.findById(6)));
 
         rdao.delete(rNew);
+
+        //new test voor find() fix
+        Reiziger testReizger = rdao.findById(1);
+        System.out.println(testReizger + " " + testReizger.getAdres());
     }
 
 }

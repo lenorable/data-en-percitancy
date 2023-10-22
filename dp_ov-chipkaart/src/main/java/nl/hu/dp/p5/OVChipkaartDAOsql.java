@@ -1,4 +1,4 @@
-package nl.hu.dp.p4;
+package nl.hu.dp.p5;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -7,18 +7,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.List;
 
 public class OVChipkaartDAOsql implements OVChipkaartDAO {
     private Connection conn;
-    private ReizigerDAO rdao;
+    private ProductDAO pDao;
 
     public OVChipkaartDAOsql(Connection conn) {
         this.conn = conn;
     }
 
-    public void setRdao(ReizigerDAO rdao) {
-        this.rdao = rdao;
+    public void setPdao(ProductDAO pDao) {
+        this.pDao = pDao;
     }
 
     @Override
@@ -34,14 +33,25 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
         statement.setInt(5, kaart.getReiziger().getId());
 
         statement.executeUpdate();
-
         statement.close();
+
+        if (pDao != null) {
+            for (Product product : kaart.getProducten()) {
+                pDao.save(product);
+            }
+        }
 
         return true;
     }
 
     @Override
     public boolean update(OVChipkaart kaart) throws SQLException {
+        if (pDao != null) {
+            for (Product product : kaart.getProducten()) {
+                pDao.update(product);
+            }
+        }
+
         PreparedStatement statement = conn.prepareStatement(
                 "UPDATE ov_chipkaart SET geldig_tot = ?, klasse = ?, saldo = ?, reiziger_id = ? WHERE kaart_nummer = ?");
 
@@ -62,6 +72,12 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
 
     @Override
     public boolean delete(OVChipkaart kaart) throws SQLException {
+        if (pDao != null) {
+            for (Product product : kaart.getProducten()) {
+                pDao.delete(product);
+            }
+        }
+
         PreparedStatement statement = conn.prepareStatement("DELETE FROM ov_chipkaart WHERE kaart_nummer = ?");
 
         statement.setInt(1, kaart.getKaartNummer());
@@ -90,6 +106,13 @@ public class OVChipkaartDAOsql implements OVChipkaartDAO {
             k1.setGeldigTot(LocalDate.parse(awns.getDate(2).toString()));
             k1.setKlasse(awns.getInt(3));
             k1.setSaldo(awns.getDouble(4));
+
+            if (pDao != null) {
+                ArrayList<Product> producten = pDao.findByOVChipkaart(k1);
+                for (Product product : producten) {
+                    k1.addProduct(product);
+                }
+            }
 
             kaarten.add(k1);
         }

@@ -113,7 +113,7 @@ public class Main {
     private static void testOVChipDAO(ReizigerDAO rdao, AdresDAO aDao, OVChipkaartDAO oDao) throws SQLException {
         rdao.setAdresDAO(aDao);
         aDao.setReizigerDAO(rdao);
-        rdao.setOVChipDAO(oDao);
+        rdao.setOVChipDAO(oDao); //?
 
         Adres aNew = new Adres();
         aNew.setId(6);
